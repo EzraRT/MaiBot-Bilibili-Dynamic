@@ -61,6 +61,11 @@ def sent_text(plugin):
 async def test_real_sdk_loader_and_component_registration(plugin):
     components = plugin.get_components()
     assert {c["name"] for c in components} == {"bili", "bili_links"}
+    links = next(c for c in components if c["name"] == "bili_links")
+    # MaiBot's receive path invokes this named hook, not the legacy ON_MESSAGE event.
+    assert links["type"] == "HOOK_HANDLER"
+    assert links["metadata"]["hook"] == "chat.receive.after_process"
+    assert links["metadata"]["mode"] == "observe"
     assert plugin.config.plugin.config_version == "1.0.0"
     schema = plugin.build_config_schema()
     assert schema
@@ -92,7 +97,7 @@ async def test_public_subscription_does_not_grant_login_permission(plugin):
     plugin.client.qr_generate.assert_not_awaited()
 
 
-async def test_link_event_sdk_segments_background_and_dedup(plugin):
+async def test_link_hook_sdk_segments_background_and_dedup(plugin):
     from bili.models import Card
 
     plugin.client.resolve = AsyncMock(
@@ -110,6 +115,39 @@ async def test_link_event_sdk_segments_background_and_dedup(plugin):
     await plugin.handle_message(message={**message, "session_id": "group-b"})
     await asyncio.gather(*plugin._link_tasks)
     assert len(plugin.test_calls) > before
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "https://www.bilibili.com/video/BV1dBpE6BEG9/",
+        "[https://www.bilibili.com/video/BV1dBpE6BEG9/](https://www.bilibili.com/video/BV1dBpE6BEG9/)",
+    ],
+)
+async def test_receive_hook_dispatches_reported_link(plugin, text):
+    from bili.models import Card
+
+    plugin.client.resolve = AsyncMock(return_value=Card("BV1dBpE6BEG9", "视频", "测试"))
+    component = next(
+        c
+        for c in plugin.get_components()
+        if c["type"] == "HOOK_HANDLER" and c["metadata"]["hook"] == "chat.receive.after_process"
+    )
+    handler = getattr(plugin, component["metadata"]["handler_name"])
+    # Dispatch the Host's serialized payload using the handler published by the SDK.
+    result = await handler(
+        message={
+            "session_id": "group-a",
+            "processed_plain_text": text,
+            "raw_message": [{"type": "text", "data": text}],
+        }
+    )
+    assert result is None
+    assert plugin._link_tasks
+    await asyncio.gather(*plugin._link_tasks)
+    plugin.client.resolve.assert_awaited_once()
+    assert plugin.client.resolve.call_args.args[0].key == "video:BV1dBpE6BEG9"
+    assert "测试" in sent_text(plugin)
 
 
 async def test_config_reload_replaces_tasks_and_preserves_subscriptions(plugin):

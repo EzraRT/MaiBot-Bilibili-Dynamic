@@ -26,6 +26,27 @@ def test_url_types_and_host_validation(url, expected):
     assert parse_url(url) == expected
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "https://www.bilibili.com/video/BV1dBpE6BEG9/",
+        "www.bilibili.com/video/BV1dBpE6BEG9/",
+        "[https://www.bilibili.com/video/BV1dBpE6BEG9/](https://www.bilibili.com/video/BV1dBpE6BEG9/)",
+        "[视频](https://www.bilibili.com/video/BV1dBpE6BEG9/?p=1&share_source=copy)",
+        "`https://www.bilibili.com/video/BV1dBpE6BEG9/`",
+        "看看（https://www.bilibili.com/video/BV1dBpE6BEG9/）",
+    ],
+)
+def test_reported_video_link_and_markdown(text):
+    # Disable bare IDs so extraction must recognize the complete URL itself.
+    assert extract_links(text, bare_ids=False) == [Link("video", "BV1dBpE6BEG9")]
+
+
+def test_adjacent_markdown_links_keep_order_and_deduplicate():
+    text = "[https://b23.tv/Abc](https://b23.tv/Abc)[动态](https://t.bilibili.com/1234)"
+    assert extract_links(text) == [Link("short", "https://b23.tv/Abc"), Link("dynamic", "1234")]
+
+
 def test_json_share_card_and_dedup():
     message = {
         "raw_message": [

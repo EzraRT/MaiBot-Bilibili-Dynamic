@@ -4,7 +4,7 @@
 
 项目仓库：[EzraRT/MaiBot-Bilibili-Dynamic](https://github.com/EzraRT/MaiBot-Bilibili-Dynamic)。问题反馈请提交到 [Issues](https://github.com/EzraRT/MaiBot-Bilibili-Dynamic/issues)。
 
-适配当前 [MaiBot 官方开发教程](https://docs.mai-mai.org/plugin/)，使用 `MaiBotPlugin`、`@Command`、`@EventHandler` 和 Host 能力代理。要求 **Python 3.12+、MaiBot 1.3.5+ 的新插件运行时、maibot-plugin-sdk 2.11.x**。旧版 `BasePlugin` 接口不适用。
+适配当前 [MaiBot 官方开发教程](https://docs.mai-mai.org/plugin/)，使用 `MaiBotPlugin`、`@Command`、`@HookHandler` 和 Host 能力代理。要求 **Python 3.12+、MaiBot 1.3.5+ 的新插件运行时、maibot-plugin-sdk 2.11.x**。旧版 `BasePlugin` 接口不适用。
 
 ## 功能
 
@@ -79,6 +79,15 @@
 
 自动解析同一内容在同一会话默认冷却 120 秒，成功发送后才记录；不同会话分别计算。每条消息最多解析 3 个链接。`links.only_when_mentioned` 可以改为仅被提及时解析。
 
+### 链接没有自动解析时
+
+普通公开视频链接默认自动解析，无需先订阅、配置管理员或扫码登录。支持带或不带 `https://` 的完整视频链接，以及 Markdown 链接；只有 `www.bilibili.com` 的首页地址不会生成内容卡片。
+
+1. 更新插件并在 WebUI **重载插件**或重启 MaiBot。初版使用的 `ON_MESSAGE` 事件在 MaiBot 1.3.5 接收流程中没有触发，现已改为 `chat.receive.after_process` Hook；只重载配置不能替换消息组件。
+2. 确认 `plugin.enabled = true`、`links.enabled = true`；希望无需 @ 即解析时，保持 `links.only_when_mentioned = false`。`access.allowed_streams` 留空表示允许所有聊天；若已设置白名单，用 `/bili status` 确认当前聊天流 ID 已包含在内。
+3. 同一视频成功解析后，默认 120 秒内不会重复发送。可用 `/bili parse https://www.bilibili.com/video/BV1dBpE6BEG9/` 手动测试，它不受自动解析冷却限制。
+4. 如果手动解析也失败，查看命令返回的错误及日志中的 `Bilibili 链接解析失败`。网络、B 站风控或内容不可见会阻止获取内容；图片渲染失败通常会回退为文本。
+
 ## 数据与恢复
 
 - 持久化目录使用 `ctx.paths.data_dir`，通常为 `data/plugins/com.ezrart.bilibili-dynamic/`。升级请保留整个目录，尤其是 `bilibili.sqlite3` 及 SQLite 尚未合并的 WAL 文件；备份前先停止插件。
@@ -113,4 +122,4 @@ uv run python scripts/package.py
 
 本项目将 [Colter23/bilibili-dynamic-mirai-plugin](https://github.com/Colter23/bilibili-dynamic-mirai-plugin) 的主要功能迁移到 MaiBot，感谢 Colter23 及原项目贡献者。参考原项目 v3 源码提交 `e07db1c9131b59fbd550fe9042556e20b4d877e2`，以 Python 重新实现运行时、存储、渲染与插件集成，未包含原项目的 Mirai 二进制或字体、插画资源。
 
-延续原项目的 **AGPL-3.0** 许可，详见 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。依据 [MaiBot 插件指南](https://docs.mai-mai.org/plugin/)、[事件处理器](https://docs.mai-mai.org/plugin/event-handlers) 和 [能力 API](https://docs.mai-mai.org/plugin/api-reference) 适配新 SDK；接口核对使用 MaiBot 1.3.5 源码提交 `f9ec3670a3638d6a4708ee5253f7ffe2838c9415`，本地验证 SDK 版本为 `maibot-plugin-sdk 2.11.0`。
+延续原项目的 **AGPL-3.0** 许可，详见 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。依据 [MaiBot 插件指南](https://docs.mai-mai.org/plugin/)、[Hook 处理器](https://docs.mai-mai.org/plugin/hooks) 和 [能力 API](https://docs.mai-mai.org/plugin/api-reference) 适配新 SDK；接口核对使用 MaiBot 1.3.5 源码提交 `f9ec3670a3638d6a4708ee5253f7ffe2838c9415`，本地验证 SDK 版本为 `maibot-plugin-sdk 2.11.0`。

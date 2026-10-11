@@ -16,7 +16,7 @@ PAGE_HOSTS = {
 }
 URL_RE = re.compile(
     r"(?<![\w.@/-])(?:https?://)?(?:www\.|m\.|t\.|live\.|space\.)?"
-    r"(?:bilibili\.com|b23\.tv|bili2233\.cn)/[^\s<>\"'，。！？；、（）【】]+",
+    r"(?:bilibili\.com|b23\.tv|bili2233\.cn)/[^\s<>\"'`\[\](){}，。！？；、（）【】]+",
     re.I,
 )
 ID_RE = re.compile(r"(?<![\w/])(?:BV[0-9A-Za-z]{10}|av\d+|cv\d+|(?:ss|ep|md)\d+)(?!\w)")

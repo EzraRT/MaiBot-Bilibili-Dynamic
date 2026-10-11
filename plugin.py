@@ -12,8 +12,8 @@ from collections import OrderedDict
 from pathlib import Path
 
 import regex
-from maibot_sdk import Command, EventHandler, MaiBotPlugin
-from maibot_sdk.types import EventType
+from maibot_sdk import Command, HookHandler, MaiBotPlugin
+from maibot_sdk.types import HookMode
 
 from .bili.client import BiliClient, BiliError
 from .bili.config import BiliConfig
@@ -500,11 +500,11 @@ class BilibiliDynamicPlugin(MaiBotPlugin):
         finally:
             temporary.unlink(missing_ok=True)
 
-    @EventHandler(
-        "bili_links",
+    @HookHandler(
+        "chat.receive.after_process",
+        name="bili_links",
         description="解析聊天中的 B 站链接",
-        event_type=EventType.ON_MESSAGE,
-        intercept_message=False,
+        mode=HookMode.OBSERVE,
     )
     async def handle_message(self, message=None, **kwargs):
         message = message or {}
