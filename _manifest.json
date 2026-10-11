@@ -1,0 +1,30 @@
+{
+  "manifest_version": 2,
+  "id": "com.ezrart.bilibili-dynamic",
+  "version": "0.1.0",
+  "name": "Bilibili 动态订阅与卡片",
+  "description": "B站动态与直播订阅、关注流低延迟检测、番剧更新和聊天链接卡片",
+  "author": {
+    "name": "EzraRT",
+    "url": "https://github.com/EzraRT"
+  },
+  "license": "AGPL-3.0-only",
+  "urls": {
+    "repository": "https://github.com/EzraRT/MaiBot-Bilibili-Dynamic",
+    "homepage": "https://github.com/EzraRT/MaiBot-Bilibili-Dynamic",
+    "documentation": "https://github.com/EzraRT/MaiBot-Bilibili-Dynamic/blob/main/README.md",
+    "issues": "https://github.com/EzraRT/MaiBot-Bilibili-Dynamic/issues"
+  },
+  "host_application": {"min_version": "1.3.5", "max_version": "1.99.99"},
+  "sdk": {"min_version": "2.11.0", "max_version": "2.99.99"},
+  "plugin_type": "integration",
+  "display": {"icon": {"type": "lucide", "value": "tv", "background": "#fb7299"}},
+  "capabilities": ["send.text", "send.image", "send.hybrid", "render.html2png"],
+  "dependencies": [
+    {"type": "python_package", "name": "httpx", "version_spec": ">=0.27,<1"},
+    {"type": "python_package", "name": "pillow", "version_spec": ">=11,<13"},
+    {"type": "python_package", "name": "qrcode", "version_spec": ">=8,<9"},
+    {"type": "python_package", "name": "regex", "version_spec": ">=2024.11"}
+  ],
+  "i18n": {"default_locale": "zh-CN"}
+}

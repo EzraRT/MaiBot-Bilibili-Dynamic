@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Runtime credentials and state
+/config.toml
+/.env
+/data/
+/temp/
+*.sqlite3*
+.pytest_cache/
+.ruff_cache/

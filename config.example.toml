@@ -1,0 +1,46 @@
+# 参考配置；运行时 config.toml 由 MaiBot Runner 自动生成。
+# 先配置 access.admins，再在私聊中 /bili login。
+
+[plugin]
+config_version = "1.0.0"
+enabled = true
+
+[access]
+admins = []
+allow_public_subscribe = false
+allowed_streams = []
+max_subscriptions_per_stream = 100
+
+[account]
+cookie_env = "BILIBILI_COOKIE"
+cookie = ""
+
+[polling]
+mode = "auto"
+feed_interval = 10
+space_interval = 300
+anonymous_space_interval = 30
+space_tick = 5
+live_interval = 30
+season_interval = 120
+max_pages = 5
+catchup_hours = 24
+request_gap = 1
+timeout = 15
+risk_backoff = 120
+
+[links]
+enabled = true
+only_when_mentioned = false
+cooldown = 120
+max_per_message = 3
+bare_ids = true
+
+[cards]
+renderer = "auto"
+width = 880
+accent = "#fb7299"
+font_path = ""
+max_images = 9
+max_text = 1600
+cache_seconds = 300
